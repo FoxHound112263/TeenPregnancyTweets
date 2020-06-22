@@ -26,8 +26,10 @@ library(widyr)      # correlation analysis
 #py_install("pymongo", pip = TRUE)
 #py_install("pandas", pip = TRUE)
 
-# connect to mongo database using reticulate
+# set working directory
+setwd("C:\\Users\\User\\Desktop\\GitHub Projects\\TeenPregnancyTweets")
 
+# connect to mongo database using reticulate
 py_run_string("
 
 import pymongo
@@ -45,7 +47,7 @@ data <-  py_run_string("tweet_dt = pd.DataFrame(tweet_list)")
 # convert and extract R object
 data_r <- py_to_r(data)
 data_list <- data_r$tweet_list
-save(data_list, file = "data_list.RData")
+#save(data_list, file = "data_list.RData")
 
 
 # remove '_id' since it's a python strange object (optional)
@@ -63,7 +65,7 @@ tweets.raw.df <- data_list %>%
     ID = .x$tweet_id,
     Created_At = .x$timestamp,
     Text = .x$text,
-    account = .x$screen_name,
+    #account = .x$screen_name,
     stringsAsFactors = FALSE
   )
   ) %>% 
@@ -73,6 +75,14 @@ tweets.raw.df <- data_list %>%
 tweets.raw.df %>% 
   filter(!str_detect(string = Text, pattern = '@')) %>% 
   head()
+
+# save object for markdown
+data.glimpse <- tweets.raw.df %>% 
+  filter(!str_detect(string = Text, pattern = '@')) %>% 
+  head()
+
+save(data.glimpse, file = "datamarkdown\\data.glimpse.RData")
+
 
 # reformat date column using magrittr and lubridate
 tweets.raw.df %<>% 
