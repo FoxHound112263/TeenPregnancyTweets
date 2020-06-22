@@ -1,0 +1,60 @@
+---
+title: "UNFPA-TwitterAnalysis"
+output:
+  html_document: default
+  word_document: default
+---
+
+# Análisis sobre tweets relacionados con embarazo
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+memory.limit(size=5000)
+```
+
+```{r, echo=FALSE, include=FALSE}
+library(reticulate) # python scripts
+library(tidyverse)  # pipe operator manipulation
+library(magrittr)   # pipe operator mutation
+library(lubridate)  # date manipulation
+library(plotly)     # interactive plots (ggplot2)
+library(tm)         # text mining
+library(tidytext)   # tidy models
+library(wordcloud2) # word clouds
+library(tsne)       # non-linear dim reduction
+library(slam)       # deal with BIG tdm matrices freq
+library(igraph)     # network analysis
+library(networkD3)  # network visualization
+library(glue)       # format and interpolate strings
+library(widyr)      # correlation analysis
+library(knitr)      # compile html document
+library(kableExtra) # pretty tables
+
+```
+
+
+```{python, echo=FALSE}
+
+
+```
+
+## Nauraleza de los datos a analizar
+
+La información principal consiste en la id del tweet, el tiempo exacto en que fue creado y su texto:
+
+```{r, echo=FALSE, include=FALSE}
+
+```
+
+```{r}
+#kable(tweets.raw.df[1:10,])
+```
+## Análisis temportal
+
+```{r}
+
+```
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
