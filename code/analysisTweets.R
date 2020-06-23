@@ -299,7 +299,7 @@ word.count <- words.df %>% count(word, sort = TRUE)
 word.count %>% head(20)
 
 # bar plot
-plt <- word.count %>% 
+plt2 <- word.count %>% 
   # Set count threshold. 
   filter(n > 700) %>%
   mutate(word = reorder(word, n)) %>%
@@ -310,13 +310,18 @@ plt <- word.count %>%
   coord_flip() +
   ggtitle(label = 'Palabras más frecuentes')
 
-plt %>% ggplotly()
+plt2 %>% ggplotly()
+
+# save plot
+save(plt2, file = "datamarkdown\\plt2.RData")
+
 
 
 # wordcloud
-wordcloud2(word.count)
-
-
+wc <- wordcloud2(word.count, color = 'random-dark',size = 1.1)
+wc
+#save wc
+save(wc, file = "datamarkdown\\wc.RData")
 
 # TFIDF weighting
 
@@ -352,7 +357,7 @@ hfp.df <- as.data.frame(high.freq[1:20])
 hfp.df$names <- rownames(hfp.df)
 colnames(hfp.df) <- c('n','word')
 
-plt <- as.data.frame(hfp.df) %>% 
+plt3 <- as.data.frame(hfp.df) %>% 
   # Set count threshold. 
   ggplot(aes(reorder(word,n), y = n)) +
   theme_light() + 
@@ -361,7 +366,11 @@ plt <- as.data.frame(hfp.df) %>%
   coord_flip() +
   ggtitle(label = 'Palabras más frecuentes con ponderación (TF-IDF)')
 
-plt %>% ggplotly()
+plt3 %>% ggplotly()
+
+save(plt3, file = "datamarkdown\\plt3.RData")
+
+
 
 # fixing scale for wordcloud
 hfp.df <-  hfp.df %>% 
@@ -370,8 +379,9 @@ hfp.df <-  hfp.df %>%
 hfp.df <- hfp.df[c("word", "n")]
 
 # TF-IDF wordcloud
-wordcloud2(hfp.df)
+wc2 <-  wordcloud2(hfp.df)
 
+save(wc2, file = "datamarkdown\\wc2.RData")
 
 #-------------------------------------------------------------
 # HASHTAGS

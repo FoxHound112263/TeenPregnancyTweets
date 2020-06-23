@@ -22,6 +22,7 @@ library(plotly)     # interactive plots (ggplot2)
 library(tm)         # text mining
 library(tidytext)   # tidy models
 library(wordcloud2) # word clouds
+library(wordcloud)
 library(tsne)       # non-linear dim reduction
 library(slam)       # deal with BIG tdm matrices freq
 library(igraph)     # network analysis
@@ -57,6 +58,39 @@ Como se observa , hay un pico interesante el día 20 de marzo de 2015 cerca de l
 load("..\\datamarkdown\\pico.RData")
 pico
 ```
+## Frecuencias
+
+Se organizaron las palabras que más aparecen en orden descendente:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt2.RData")
+plt2 %>% ggplotly()
+```
+
+Esta nube de palabras muestra la desproporción entre la palabra de más aparición contra el resto. Esta jerarquía refleja el orden a través del cual se filtraton los tweets:
+
+
+```{r, echo=FALSE, fig.align = "center"}
+load("..\\datamarkdown\\wc.RData")
+wc
+```
+***
+
+A continuación se muestran los mismos gráficos pero con las palabras ponderadas por importancia:
+
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt3.RData")
+plt3 %>% ggplotly()
+```
+
+Se realizó el mismo procedimiento para la nube de palabras:
+
+```{r, echo=FALSE, fig.align = "center"}
+load("..\\datamarkdown\\wc2.RData")
+wc2
+```
+
 
 
 
