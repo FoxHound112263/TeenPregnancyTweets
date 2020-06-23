@@ -81,7 +81,7 @@ data.glimpse <- tweets.raw.df %>%
   filter(!str_detect(string = Text, pattern = '@')) %>% 
   head()
 
-save(data.glimpse, file = "datamarkdown\\data.glimpse.RData")
+#save(data.glimpse, file = "datamarkdown\\data.glimpse.RData")
 
 
 # reformat date column using magrittr and lubridate
@@ -128,6 +128,10 @@ plt <- tweets.raw.df %>%
 
 plt %>% ggplotly()
 
+#save plot
+save(plt, file = "datamarkdown\\plt.RData")
+
+
 # there is an interesting peak at around 2015-03-20 21:53:00
 # let's see
 
@@ -138,10 +142,17 @@ tweets.raw.df %>%
   select(Text) %>% 
   filter(!str_detect(string = Text, pattern = '@')) %>% 
   pull(Text) %>% 
-  head(20) 
+  tail() 
 
+# save object
+pico <- tweets.raw.df %>% 
+  filter(Created_At_Round > results.time ) %>% 
+  select(Text) %>% 
+  filter(!str_detect(string = Text, pattern = '@')) %>% 
+  pull(Text) %>% 
+  tail() 
 
-
+save(pico, file = "datamarkdown\\pico.RData")
 
 #-------------------------------------------------------------
 # TEXT CLEANING

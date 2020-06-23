@@ -5,11 +5,12 @@ output:
   word_document: default
 ---
 
-# Análisis sobre tweets relacionados con embarazo
+# Análisis sobre tweets relacionados con embarazo juvenil en Colombia
 
 ```{r setup, include=FALSE}
+library(knitr)      # compile html document
 knitr::opts_chunk$set(echo = TRUE)
-memory.limit(size=5000)
+getwd()
 ```
 
 ```{r, echo=FALSE, include=FALSE}
@@ -27,32 +28,34 @@ library(igraph)     # network analysis
 library(networkD3)  # network visualization
 library(glue)       # format and interpolate strings
 library(widyr)      # correlation analysis
-library(knitr)      # compile html document
 library(kableExtra) # pretty tables
-
 ```
 
-
-```{python, echo=FALSE}
-
-
-```
 
 ## Nauraleza de los datos a analizar
 
-La información principal consiste en la id del tweet, el tiempo exacto en que fue creado y su texto:
+Las variables que se tuvieron en cuenta para el análisis consisten en: el número único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text):
 
-```{r, echo=FALSE, include=FALSE}
 
+```{r, echo=FALSE}
+load("..\\datamarkdown\\data.glimpse.RData")
+kable(data.glimpse)
 ```
 
-```{r}
-#kable(tweets.raw.df[1:10,])
+$~$
+
+A continuación se muestra un gráfico con la temporalidad de los datos extraídos:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt.RData")
+plt %>% ggplotly()
 ```
-## Análisis temportal
 
-```{r}
+Como se observa , hay un pico interesante el día 20 de marzo de 2015 cerca de las 10pm.
 
+```{r, echo=F}
+load("..\\datamarkdown\\pico.RData")
+pico
 ```
 
 
