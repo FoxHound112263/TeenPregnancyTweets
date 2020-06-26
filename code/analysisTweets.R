@@ -129,7 +129,7 @@ plt <- tweets.raw.df %>%
 plt %>% ggplotly()
 
 #save plot
-save(plt, file = "datamarkdown\\plt.RData")
+#save(plt, file = "datamarkdown\\plt.RData")
 
 
 # there is an interesting peak at around 2015-03-20 21:53:00
@@ -313,7 +313,7 @@ plt2 <- word.count %>%
 plt2 %>% ggplotly()
 
 # save plot
-save(plt2, file = "datamarkdown\\plt2.RData")
+#save(plt2, file = "datamarkdown\\plt2.RData")
 
 
 
@@ -321,7 +321,7 @@ save(plt2, file = "datamarkdown\\plt2.RData")
 wc <- wordcloud2(word.count, color = 'random-dark',size = 1.1)
 wc
 #save wc
-save(wc, file = "datamarkdown\\wc.RData")
+#save(wc, file = "datamarkdown\\wc.RData")
 
 # TFIDF weighting
 
@@ -342,7 +342,7 @@ tdm
 freq <- as.data.frame(x = sort(row_sums(tdm), decreasing = F))
 colnames(freq) <- 'freq'
 
-# lot of noise
+# plot of noise
 plot(sort(freq$freq, decreasing = T),col="blue",main="Word TF-IDF frequencies", xlab="TF-IDF-based rank", ylab = "TF-IDF")
 
 # convert to matrix for easy sorting
@@ -368,7 +368,7 @@ plt3 <- as.data.frame(hfp.df) %>%
 
 plt3 %>% ggplotly()
 
-save(plt3, file = "datamarkdown\\plt3.RData")
+#save(plt3, file = "datamarkdown\\plt3.RData")
 
 
 
@@ -380,8 +380,8 @@ hfp.df <- hfp.df[c("word", "n")]
 
 # TF-IDF wordcloud
 wc2 <-  wordcloud2(hfp.df)
-
-save(wc2, file = "datamarkdown\\wc2.RData")
+wc2
+#save(wc2, file = "datamarkdown\\wc2.RData")
 
 #-------------------------------------------------------------
 # HASHTAGS
@@ -449,7 +449,8 @@ bi.gram.count <- bi.gram.words %>%
   rename(weight = n)
 
 # glimpse
-bi.gram.count %>% head()
+bigrams <-  bi.gram.count %>% head()
+save(bigrams, file = "datamarkdown\\bigrams.RData")
 
 # weight distribution
 bi.gram.count %>% 
@@ -487,8 +488,9 @@ network <-  bi.gram.count %>%
   mutate(weight = ScaleWeight(x = weight, lambda = 2E3)) %>% 
   graph_from_data_frame(directed = FALSE)
 
-network
+plt4 <- network
 is.weighted(network)
+#save(plt4, file = "datamarkdown\\plt4.RData")
 
 # visualization
 plot(
@@ -502,6 +504,8 @@ plot(
   sub = glue('Peso límite: {threshold}'), 
   alpha = 50
 )
+
+
 
 
 # additional information
@@ -591,6 +595,9 @@ network.D3$nodes %<>% mutate(Group = 1)
 # Define edges width. 
 network.D3$links$Width <- 10*E(network)$width
 
+plt5 <- network.D3
+#save(plt5, file = "datamarkdown\\plt5.RData")
+
 forceNetwork(
   Links = network.D3$links, 
   Nodes = network.D3$nodes, 
@@ -673,6 +680,9 @@ network.D3$nodes %<>% mutate(Group = 1)
 # Define edges width. 
 network.D3$links$Width <- 10*E(cc.network)$width
 
+plt6 <- network.D3
+#save(plt6, file = "datamarkdown\\plt6.RData")
+
 forceNetwork(
   Links = network.D3$links, 
   Nodes = network.D3$nodes, 
@@ -710,6 +720,9 @@ V(cc.network)$membership <- membership(comm.det.obj)
 # We use the membership label to color the nodes.
 network.D3$nodes$Group <- V(cc.network)$membership
 
+plt7 <- network.D3
+#save(plt7, file = "datamarkdown\\plt7.RData")
+
 forceNetwork(
   Links = network.D3$links, 
   Nodes = network.D3$nodes, 
@@ -734,7 +747,7 @@ membership.df <- tibble(
   cluster = V(cc.network)$membership
 )
 
-V(cc.network)$membership %>%
+network.clusters <-  V(cc.network)$membership %>%
   unique %>% 
   sort %>% 
   map_chr(.f = function(cluster.id) {
@@ -747,6 +760,8 @@ V(cc.network)$membership %>%
       str_c(collapse = ', ')
     
   }) 
+
+#save(network.clusters, file = "datamarkdown\\network.clusters.RData")
 
 
 #-------------------------------------------------------------
@@ -793,6 +808,8 @@ network.D3$nodes$Group <- network.D3$nodes$name %>%
   )
 
 network.D3$links %<>% mutate(Width = 10*E(network)$width)
+plt8 <- network.D3
+#save(plt8, file = "datamarkdown\\plt8.RData")
 
 forceNetwork(
   Links = network.D3$links, 
@@ -832,18 +849,70 @@ emocion.df <- get_nrc_sentiment(char_v = tweets.vector, language = "spanish")
 
 #-------------------------------------------------------------
 # CLUSTER ANALYSIS
+set.seed(10)
+library(quanteda)
+corp <- corpus(tweets.df$Text)
+corpsent <- corpus_reshape(corp, to = "sentences")
+texts(corpsent)
+corpus.cluster <- texts(corpus_sample(corpsent, 1000))
 
-# use tdm created previously for distance matrix
-quanteda_corpus <- quanteda::corpus(tweets.df$Text)
+tdm2 <- dfm(corpus.cluster)
+tdm2 <- quanteda::dfm_tfidf(tdm2)
 
-# Document frequencies matrix
-dfmat <- dfm(corpus_subset(quanteda_corpus), verbose = T)
 
-# Distance matrix using cosine
-#cosine.matrix <- as.matrix( textstat_simil(dfmat, method = "cosine", margin = "documents") )
-# too expensive
+tdm2 <- convert(x = tdm2,to = "tm")
+convert()
+# reduce the size of the tdm by removing sparse terms
+tdm2 <- removeSparseTerms(tdm2, sparse = 0.99)
+#tdm2 <- as.matrix(tdm2)
+tdm2 <- as.dfm(tdm2)
 
+# convert to cosine distance matrix
+cosine.mat <- as.matrix(textstat_simil(tdm2, method = "cosine", margin = "documents"))
+cosine.mat[is.na(cosine.mat)] <- 0
+library(Rtsne)
+perp <- round((5*ncol(cosine.mat))/100)
+tiesne <- Rtsne(X = cosine.mat,dims = 2,perplexity = perp,theta = 0.5,check_duplicates = F,pca = F,partial_pca = F,max_iter = 1000,verbose = T)
+
+
+library(ClusterR)
+# Optimal number of clusters
+opt = Optimal_Clusters_KMeans(tiesne$Y, max_clusters = 10, plot_clusters = T,criterion = 'variance_explained',num_init = 1,initializer = 'optimal_init')
+
+#res.km <- eclust(as.data.frame(tiesne$Y), "kmeans", nstart = 25)
+#fviz_gap_stat(res.km$gap_stat)
+
+library(NbClust)
+opt2 <- NbClust(data = tiesne$Y,distance = 'euclidean',max.nc = 20,method = 'kmeans')
+
+n.clusters <- 5
+kfit <- kmeans(tiesne$Y, n.clusters)
+
+plot(cosine.mat, col=kfit$cluster)
+
+plot(tiesne$Y, col = kfit$cluster)
+points(kfit$centers, col = 1:5, pch = 2, cex = 2)
+
+
+library(cluster)
+library(HSAUR)
+
+# Matriz de disimilaridad
+dissE <- daisy(tiesne$Y) 
+dE2   <- dissE^2
+sk2   <- silhouette(kfit$cluster, dE2)
+# Gráfico silueta
+plot(sk2)
+
+
+library(factoextra)
+fviz_cluster(kfit, data = as.data.frame(tiesne$Y), stand = FALSE,
+             ellipse = T, show.clust.cent = FALSE,
+             geom = "point",palette = "jco", ggtheme = theme_classic())
+
+# Extract clusters
 
 gc()
+
 
 

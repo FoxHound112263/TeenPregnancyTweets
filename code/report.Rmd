@@ -1,14 +1,31 @@
 ---
-title: "UNFPA-TwitterAnalysis"
+title: "Análisis sobre Tweets relacionados con embarazo adolescente"
+author: "Trabajo realizado por el Equipo de Innovación del Fondo de Población de Naciones Unidas"
+date: Reporte generado "`r Sys.Date()`"
 output:
-  html_document: default
-  word_document: default
+  prettydoc::html_pretty:
+    theme: cayman
+    toc: true
+    toc_depth: 2
+    highlight: github
+    math: katex
 ---
 
-# Análisis sobre tweets relacionados con embarazo juvenil en Colombia
+<style type="text/css">
+
+h1.title {
+  font-size: 38px;
+  color: Black;
+  text-align: center;
+}
+
+</style>
+
+
 
 ```{r setup, include=FALSE}
 library(knitr)      # compile html document
+library(prettydoc)  # template
 knitr::opts_chunk$set(echo = TRUE)
 getwd()
 ```
@@ -33,9 +50,11 @@ library(kableExtra) # pretty tables
 ```
 
 
-## Nauraleza de los datos a analizar
+## Conjunto de datos
 
-Las variables que se tuvieron en cuenta para el análisis consisten en: el número único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text):
+Los datos fueron recolectados a través de un proceso de **raspado** (webscraping) siguiendo una primera versión de una clasificación taxonómica que tratara de extraer los tweets más relevantes para el análisis.
+
+Las variables que se tuvieron en cuenta fueron: el identificador único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text); de modo que el nombre de las cuentas 
 
 
 ```{r, echo=FALSE}
@@ -45,38 +64,39 @@ kable(data.glimpse)
 
 $~$
 
-A continuación se muestra un gráfico con la temporalidad de los datos extraídos:
+A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un total de **41.879 tweets para casi 7 años**!
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.align="center", fig.cap="Figura 1. Temporalidad de los Tweets"}
 load("..\\datamarkdown\\plt.RData")
 plt %>% ggplotly()
 ```
 
-Como se observa , hay un pico interesante el día 20 de marzo de 2015 cerca de las 10pm.
+Como se observa, hay un pico de tweets por minuto interesante el día 20 de marzo de 2015 cerca de las 10pm. Estos son algunos de los tweets que se publicaron alrededor de esa hora:
 
 ```{r, echo=F}
 load("..\\datamarkdown\\pico.RData")
 pico
 ```
-## Frecuencias
+## Frecuencias de palabras
 
-Se organizaron las palabras que más aparecen en orden descendente:
+Una forma intuitiva de analizar datos en formato de texto, es a través de la visualización de las **palabras más populares**:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE, fig.align='center'}
 load("..\\datamarkdown\\plt2.RData")
 plt2 %>% ggplotly()
 ```
 
-Esta nube de palabras muestra la desproporción entre la palabra de más aparición contra el resto. Esta jerarquía refleja el orden a través del cual se filtraton los tweets:
+Adicional al gráfico de barras anterior, las **nubes de palabras** son otro tipo de visualización para este tipo de datos. Sin embargo, en este análisis hay una gran desproporción entre las palabras más populares, evidenciado por la forma del gráfico:
 
 
 ```{r, echo=FALSE, fig.align = "center"}
 load("..\\datamarkdown\\wc.RData")
 wc
 ```
-***
 
-A continuación se muestran los mismos gráficos pero con las palabras ponderadas por importancia:
+Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean las que poseen más importancia para el significado del texto. Un modo de abordar este problema es con la ponderación de las palabras con un método conocido como **TF-IDF**, que castiga aquellas palabras que aparecen en demacía pero no en proporción a la totalidad de documentos, en este caso Tweets.
+
+Luego de realizar la ponderación la nueva jerarquía es la siguiente:
 
 
 ```{r, echo=FALSE}
@@ -84,14 +104,156 @@ load("..\\datamarkdown\\plt3.RData")
 plt3 %>% ggplotly()
 ```
 
-Se realizó el mismo procedimiento para la nube de palabras:
+Como se observa la palabra "mes" aparece en primer lugar, en vez de embarazo.
+
+Se realizó el mismo procedimiento para la nube de palabras, y es evidente a primera vista que las palabras se visualizan de mejor manera:
 
 ```{r, echo=FALSE, fig.align = "center"}
 load("..\\datamarkdown\\wc2.RData")
 wc2
 ```
+$~$
+
+## Análisis de redes
+
+El análisis de redes es un conjunto de técnicas integradas que permiten extraer las relaciones entre diferentes actores y **analizar las estructuras sociales** que emergen de sus interacciones.
+
+En primer lugar se deben extraer las palabras que más se utilizan de forma conjunta, o más conocidas como n-gramas. Para esta sección se construyeron las redes a partir del procedimiento más común, tomando los bi-gramas:
 
 
+```{r, echo=F}
+load("..\\datamarkdown\\bigrams.RData")
+bigrams
+```
+
+A cada par de palabras se le asignó un peso, que se verá reflejado en la red por la cercanía con otros conjuntos de palabras, como en el siguiente gráfico:
+
+```{r, echo=F}
+load("..\\datamarkdown\\plt4.RData")
+threshold <- 80
+
+plot(
+  plt4, 
+  vertex.size = 1,
+  vertex.label.color = 'black', 
+  vertex.label.cex = 0.7, 
+  vertex.label.dist = 1,
+  edge.color = 'gray', 
+  main = 'Red de conteo de bigramas', 
+  sub = glue('Peso límite: {threshold}'), 
+  alpha = 50
+)
+```
+
+Pero este gráfico puede visualizar mucha más información, y para ello se construyó una **versión interactiva**:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt5.RData")
+
+forceNetwork(
+  Links = plt5$links, 
+  Nodes = plt5$nodes, 
+  Source = 'source', 
+  Target = 'target',
+  NodeID = 'name',
+  Group = 'Group', 
+  opacity = 0.9,
+  Value = 'Width',
+  Nodesize = 'Degree', 
+  # We input a JavaScript function.
+  linkWidth = JS("function(d) { return Math.sqrt(d.value); }"), 
+  fontSize = 12,
+  zoom = TRUE, 
+  opacityNoHover = 1
+)
+```
+
+Una variación de esta red se construyó utilziando **'skip-grams'** en lugar de bi-gramas. Esta aproximación intenta solventar el problema en donde las palabras que están una al lado de otra tal vez no nos cuentan la historia completa, de modo que los ski-grams intentan ubicar las combinaciones de palabras que sí le dan significado al texto:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt6.RData")
+
+forceNetwork(
+  Links = plt6$links, 
+  Nodes = plt6$nodes, 
+  Source = 'source', 
+  Target = 'target',
+  NodeID = 'name',
+  Group = 'Group', 
+  opacity = 0.9,
+  Value = 'Width',
+  Nodesize = 'Degree', 
+  # We input a JavaScript function.
+  linkWidth = JS("function(d) { return Math.sqrt(d.value); }"), 
+  fontSize = 12,
+  zoom = TRUE, 
+  opacityNoHover = 1
+)
+```
+
+## Detección de comunidades
+
+Este procedimiento consiste en identificar grupos de nodos de una red que interactúan entre sí, evidenciando grupos de palabras que tocan temas en común:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt7.RData")
+
+forceNetwork(
+  Links = plt7$links, 
+  Nodes = plt7$nodes, 
+  Source = 'source', 
+  Target = 'target',
+  NodeID = 'name',
+  Group = 'Group', 
+  opacity = 0.9,
+  Value = 'Width',
+  Nodesize = 'Degree', 
+  # We input a JavaScript function.
+  linkWidth = JS("function(d) { return Math.sqrt(d.value); }"), 
+  fontSize = 12,
+  zoom = TRUE, 
+  opacityNoHover = 1
+)
+```
+Como se observa con la codificación de colores, hay grupos de palabras que pertenecen a un mismo grupo de tweets, y que en consecuencia, pertenecen a diferentes personas que hablan sobre un mismo tema.
+
+Estas son las palabras que aparecen en cada grupo o cluster:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\network.clusters.RData")
+
+network.clusters
+```
+
+## Análisis de correlaciones
+
+Este es un método estadístico que tiene el propósito de evaluar la fuerza de la relación entre varias variables, en este caso, se seleccionan palabras y se detectan aquellas con las que se suelen emparejar:
+
+```{r, echo=FALSE}
+load("..\\datamarkdown\\plt8.RData")
+
+forceNetwork(
+  Links = plt8$links, 
+  Nodes = plt8$nodes, 
+  Source = 'source', 
+  Target = 'target',
+  NodeID = 'name',
+  Group = 'Group', 
+  # We color the nodes using JavaScript code.
+  colourScale = JS('d3.scaleOrdinal().domain([0,1,2]).range(["gray", "blue", "red", "black"])'), 
+  opacity = 0.8,
+  Value = 'Width',
+  Nodesize = 'Degree', 
+  # We define edge properties using JavaScript code.
+  linkWidth = JS("function(d) { return Math.sqrt(d.value); }"), 
+  linkDistance = JS("function(d) { return 550/(d.value + 1); }"), 
+  fontSize = 18,
+  zoom = TRUE, 
+  opacityNoHover = 1
+)
+```
 
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Conclusiones
+
+...
