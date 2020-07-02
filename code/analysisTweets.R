@@ -47,6 +47,8 @@ data <-  py_run_string("tweet_dt = pd.DataFrame(tweet_list)")
 # convert and extract R object
 data_r <- py_to_r(data)
 data_list <- data_r$tweet_list
+rm(data,data_r)
+gc()
 #save(data_list, file = "data_list.RData")
 
 
@@ -124,7 +126,7 @@ plt <- tweets.raw.df %>%
   geom_line() +
   xlab(label = 'Fecha') +
   ylab(label = NULL) +
-  ggtitle(label = 'Número de Tweets por minuto (11 de septiembre de 2007 - 31 de mayo de 2020)')
+  ggtitle(label = 'N?mero de Tweets por minuto (11 de septiembre de 2007 - 31 de mayo de 2020)')
 
 plt %>% ggplotly()
 
@@ -197,7 +199,7 @@ tweets.df <- tweets.raw.df %>%
 
 
 # remove accents 
-replacement.list <- list('á' = 'a', 'é' = 'e', 'í' = 'i', 'ó' = 'o', 'ú' = 'u')
+replacement.list <- list('?' = 'a', '?' = 'e', '?' = 'i', '?' = 'o', '?' = 'u')
 
 tweets.df %<>% 
   mutate(Text = chartr(old = names(replacement.list) %>% str_c(collapse = ''), 
@@ -308,7 +310,7 @@ plt2 <- word.count %>%
   geom_col(fill = 'black', alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
-  ggtitle(label = 'Palabras más frecuentes')
+  ggtitle(label = 'Palabras m?s frecuentes')
 
 plt2 %>% ggplotly()
 
@@ -364,7 +366,7 @@ plt3 <- as.data.frame(hfp.df) %>%
   geom_col(fill = 'black', alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
-  ggtitle(label = 'Palabras más frecuentes con ponderación (TF-IDF)')
+  ggtitle(label = 'Palabras m?s frecuentes con ponderaci?n (TF-IDF)')
 
 plt3 %>% ggplotly()
 
@@ -457,7 +459,7 @@ bi.gram.count %>%
   ggplot(mapping = aes(x = weight)) +
   theme_light() +
   geom_histogram() +
-  labs(title = "Distribución de pesos")
+  labs(title = "Distribuci?n de pesos")
 # full skewed
 
 # log transformation
@@ -466,7 +468,7 @@ bi.gram.count %>%
   ggplot(mapping = aes(x = weight)) +
   theme_light() +
   geom_histogram() +
-  labs(title = "Distribución de pesos (log)")
+  labs(title = "Distribuci?n de pesos (log)")
 
 # network definition:
 # - each word is a node
@@ -501,7 +503,7 @@ plot(
   vertex.label.dist = 1,
   edge.color = 'gray', 
   main = 'Red de conteo de bigramas', 
-  sub = glue('Peso límite: {threshold}'), 
+  sub = glue('Peso l?mite: {threshold}'), 
   alpha = 50
 )
 
@@ -530,7 +532,7 @@ plot(
   # Set edge width proportional to the weight relative value.
   edge.width = 3*E(network)$width ,
   main = 'Red de conteo de bigramas', 
-  sub = glue('Peso límite: {threshold}'), 
+  sub = glue('Peso l?mite: {threshold}'), 
   alpha = 50
 )
 
@@ -565,8 +567,8 @@ plot(
   edge.color = 'gray', 
   # Set edge width proportional to the weight relative value.
   edge.width = 3*E(cc.network)$width ,
-  main = 'Componente más grande', 
-  sub = glue('Peso límite: {threshold}'), 
+  main = 'Componente m?s grande', 
+  sub = glue('Peso l?mite: {threshold}'), 
   alpha = 50
 )
 
@@ -901,7 +903,7 @@ library(HSAUR)
 dissE <- daisy(tiesne$Y) 
 dE2   <- dissE^2
 sk2   <- silhouette(kfit$cluster, dE2)
-# Gráfico silueta
+# Gr?fico silueta
 plot(sk2)
 
 

@@ -1,6 +1,6 @@
 ---
-title: "Análisis sobre Tweets relacionados con embarazo adolescente"
-author: "Trabajo realizado por el Equipo de Innovación del Fondo de Población de Naciones Unidas"
+title: "Análisis sobre Tweets relacionados con salud sexual y reproductiva"
+author: "Trabajo realizado por el Equipo de Innovación del Fondo de Población de Naciones Unidas - UNFPA"
 date: Reporte generado "`r Sys.Date()`"
 output:
   prettydoc::html_pretty:
@@ -47,14 +47,20 @@ library(networkD3)  # network visualization
 library(glue)       # format and interpolate strings
 library(widyr)      # correlation analysis
 library(kableExtra) # pretty tables
+library(shiny)
+library(hrbrthemes)
+library(gganimate)
+library(ggplot2)
+library(gifski)
 ```
 
+***
 
 ## Conjunto de datos
 
 Los datos fueron recolectados a través de un proceso de **raspado** (webscraping) siguiendo una primera versión de una clasificación taxonómica que tratara de extraer los tweets más relevantes para el análisis.
 
-Las variables que se tuvieron en cuenta fueron: el identificador único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text); de modo que el nombre de las cuentas 
+Las variables que se tuvieron en cuenta fueron: el identificador único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text); de modo que el nombre de las cuentas fueron descartados:
 
 
 ```{r, echo=FALSE}
@@ -64,12 +70,13 @@ kable(data.glimpse)
 
 $~$
 
-A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un total de **41.879 tweets para casi 7 años**!
+A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un total de **41.879 tweets para casi 13 años**!
 
-```{r, echo=FALSE, fig.align="center", fig.cap="Figura 1. Temporalidad de los Tweets"}
+```{r, echo=FALSE, fig.align="center", fig.width=9,fig.height=9}
 load("..\\datamarkdown\\plt.RData")
 plt %>% ggplotly()
 ```
+
 
 Como se observa, hay un pico de tweets por minuto interesante el día 20 de marzo de 2015 cerca de las 10pm. Estos son algunos de los tweets que se publicaron alrededor de esa hora:
 
@@ -77,11 +84,14 @@ Como se observa, hay un pico de tweets por minuto interesante el día 20 de marz
 load("..\\datamarkdown\\pico.RData")
 pico
 ```
+
+***
+
 ## Frecuencias de palabras
 
 Una forma intuitiva de analizar datos en formato de texto, es a través de la visualización de las **palabras más populares**:
 
-```{r, echo=FALSE, fig.align='center'}
+```{r, echo=FALSE, fig.align='center',fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt2.RData")
 plt2 %>% ggplotly()
 ```
@@ -89,7 +99,7 @@ plt2 %>% ggplotly()
 Adicional al gráfico de barras anterior, las **nubes de palabras** son otro tipo de visualización para este tipo de datos. Sin embargo, en este análisis hay una gran desproporción entre las palabras más populares, evidenciado por la forma del gráfico:
 
 
-```{r, echo=FALSE, fig.align = "center"}
+```{r, echo=FALSE, fig.align = "center",fig.width=5,fig.height=5}
 load("..\\datamarkdown\\wc.RData")
 wc
 ```
@@ -99,7 +109,7 @@ Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean la
 Luego de realizar la ponderación la nueva jerarquía es la siguiente:
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt3.RData")
 plt3 %>% ggplotly()
 ```
@@ -108,11 +118,31 @@ Como se observa la palabra "mes" aparece en primer lugar, en vez de embarazo.
 
 Se realizó el mismo procedimiento para la nube de palabras, y es evidente a primera vista que las palabras se visualizan de mejor manera:
 
-```{r, echo=FALSE, fig.align = "center"}
+```{r, echo=FALSE, fig.align = "center",fig.width=7,fig.height=7}
 load("..\\datamarkdown\\wc2.RData")
 wc2
 ```
-$~$
+
+Por último lugar de esta sección, visualizamos la aparición a lo largo del tiempo de la palabra 'embarazo' en todos los tweets:
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=7,fig.height=7}
+load("..\\datamarkdown\\animation.RData")
+animation
+```
+
+
+***
+
+## Geografía
+
+El conjunto de datos no posee la referencia geográfica de cada tweet, pero lo que se puede hacer es extraer las menciones de los diferentes municipios de Colombia, como lo muestra el siguiente mapa:
+
+```{r, echo=FALSE,fig.width=7,fig.height=7}
+load("..\\datamarkdown\\map.RData")
+m
+```
+
+***
 
 ## Análisis de redes
 
@@ -121,14 +151,14 @@ El análisis de redes es un conjunto de técnicas integradas que permiten extrae
 En primer lugar se deben extraer las palabras que más se utilizan de forma conjunta, o más conocidas como n-gramas. Para esta sección se construyeron las redes a partir del procedimiento más común, tomando los bi-gramas:
 
 
-```{r, echo=F}
+```{r, echo=F,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\bigrams.RData")
 bigrams
 ```
 
 A cada par de palabras se le asignó un peso, que se verá reflejado en la red por la cercanía con otros conjuntos de palabras, como en el siguiente gráfico:
 
-```{r, echo=F}
+```{r, echo=F,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt4.RData")
 threshold <- 80
 
@@ -147,7 +177,7 @@ plot(
 
 Pero este gráfico puede visualizar mucha más información, y para ello se construyó una **versión interactiva**:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt5.RData")
 
 forceNetwork(
@@ -170,7 +200,7 @@ forceNetwork(
 
 Una variación de esta red se construyó utilziando **'skip-grams'** en lugar de bi-gramas. Esta aproximación intenta solventar el problema en donde las palabras que están una al lado de otra tal vez no nos cuentan la historia completa, de modo que los ski-grams intentan ubicar las combinaciones de palabras que sí le dan significado al texto:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt6.RData")
 
 forceNetwork(
@@ -191,11 +221,13 @@ forceNetwork(
 )
 ```
 
+***
+
 ## Detección de comunidades
 
 Este procedimiento consiste en identificar grupos de nodos de una red que interactúan entre sí, evidenciando grupos de palabras que tocan temas en común:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt7.RData")
 
 forceNetwork(
@@ -225,11 +257,13 @@ load("..\\datamarkdown\\network.clusters.RData")
 network.clusters
 ```
 
+***
+
 ## Análisis de correlaciones
 
 Este es un método estadístico que tiene el propósito de evaluar la fuerza de la relación entre varias variables, en este caso, se seleccionan palabras y se detectan aquellas con las que se suelen emparejar:
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.width=7,fig.height=7}
 load("..\\datamarkdown\\plt8.RData")
 
 forceNetwork(
@@ -253,7 +287,8 @@ forceNetwork(
 )
 ```
 
+***
 
 ## Conclusiones
 
-...
+Este reporte condensa un análisis exploratorio sobre los tweets relacionados con embarazo adolescente, el cual resume casi 13 años de texto. Teniendo esto se pueden plantear diferentes hipótesis sobre los datos presentados y por ende realizar mayores análisis.
