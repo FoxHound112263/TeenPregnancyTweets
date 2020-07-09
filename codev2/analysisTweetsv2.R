@@ -81,7 +81,7 @@ tweets.raw.df <- data_list %>%
   as_tibble()
 
 rm(data_list)
-
+gc()
 
 
 
@@ -302,7 +302,9 @@ tweets.df %<>% bind_cols(hashtags.df)
 # COUNTS
 
 # extra stopwords added through an iterative process
-extra.stop.words <- c('com','www','ly','twitter','pic','bit','fb','d')
+extra.stop.words <- c('com','www','ly','twitter','pic','bit','fb','d',
+                      'twitter.com','juntosecuadorpic.twitter.com','tusaludtuderechopic.twitter.com',
+                      'de')
 
 # stopwords dataframe
 stopwords.df <- tibble(
@@ -351,7 +353,40 @@ wc
 # wordcloud with python
 pasted_text <- paste(unlist(tweets.df$Text), collapse =" ")
 
+pytext <- r_to_py(pasted_text)
 
+py_install("wordcloud")
+py_run_string("
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+from PIL import Image
+import numpy as np
+       ")
+
+
+py_run_string("
+wc = WordCloud()
+wc.generate(r.pytext)
+plt.imshow(wc)
+plt.axis('off')
+plt.show()
+              ")
+
+py_run_string("
+import os
+#print(os.getcwd())
+mask = np.array(Image.open(r'C:\\Users\\User\\Desktop\\mask.jpg'))
+wc = WordCloud(mask=mask, background_color='white',
+               max_words=2000, max_font_size=256,
+               random_state=42, width=800,
+               height=500)
+wc.generate(r.pytext)
+plt.imshow(wc, interpolation='bilinear')
+plt.axis('off')
+plt.figure(figsize=(10,10))
+plt.imshow(wc)
+plt.show()
+              ")
 
 # TFIDF weighting
 
@@ -413,6 +448,10 @@ wc2 <-  wordcloud2(hfp.df)
 wc2
 #save(wc2, file = "datamarkdownv2\\wc2.RData")
 
+
+
+
+
 #-------------------------------------------------------------
 # HASHTAGS
 
@@ -426,6 +465,12 @@ hashtags.unnested.count <- hashtags.unnested.df %>%
   count(hashtag) %>% 
   drop_na()
 
+# remove trash
+hashtags.unnested.count <- hashtags.unnested.count[ grep("twitter.com", hashtags.unnested.count$hashtag, invert = TRUE) , ]
+hashtags.unnested.count <- hashtags.unnested.count[ grep("de", hashtags.unnested.count$hashtag, invert = TRUE) , ]
+hashtags.unnested.count <- hashtags.unnested.count[ grep("23e", hashtags.unnested.count$hashtag, invert = TRUE) , ]
+
+
 # hashtag wordcloud
 wc3 <- wordcloud2(hashtags.unnested.count)
 
@@ -433,14 +478,14 @@ wc3 <- wordcloud2(hashtags.unnested.count)
 
 # custom hashtag evolution
 plt_h <- hashtags.unnested.df %>% 
-  filter(hashtag %in% c('sexual', 'infeccion')) %>% 
+  filter(hashtag %in% c('salud', 'embarazo')) %>% 
   count(Created_At_Round, hashtag) %>% 
   ggplot(mapping = aes(x  = Created_At_Round, y = n, color = hashtag)) +
   theme_light() + 
   xlab(label = 'Date') +
   ggtitle(label = 'Top Hastags Counts') +
   geom_line() + 
-  scale_color_manual(values = c('sexual' = 'green3', 'infeccion' = 'red'))
+  scale_color_manual(values = c('salud' = 'green3', 'embarazo' = 'red'))
 
 plt_h %>% ggplotly()
 
@@ -508,7 +553,7 @@ bi.gram.count %>%
 
 # 
 
-threshold <- 400
+threshold <- 200
 
 # scale by a global factor
 ScaleWeight <- function(x, lambda) {
@@ -539,75 +584,12 @@ plot(
 
 
 
-
-# additional information
-# - sizes of nodes by degree
-# - sizes of edges by weight
-
-# Store the degree.
-V(network)$degree <- strength(graph = network)
-
-# Compute the weight shares.
-E(network)$width <- E(network)$weight/max(E(network)$weight)
-
-plot(
-  network, 
-  vertex.color = 'lightblue',
-  # Scale node size by degree.
-  vertex.size = 2*V(network)$degree,
-  vertex.label.color = 'black', 
-  vertex.label.cex = 0.6, 
-  vertex.label.dist = 1.6,
-  edge.color = 'gray', 
-  # Set edge width proportional to the weight relative value.
-  edge.width = 3*E(network)$width ,
-  main = 'Red de conteo de bigramas', 
-  sub = glue('Peso l?mite: {threshold}'), 
-  alpha = 50
-)
-
-#---
-# biggest connected component
-clusters(graph = network)
-
-# Select biggest connected component.  
-V(network)$cluster <- clusters(graph = network)$membership
-
-cc.network <- induced_subgraph(
-  graph = network,
-  vids = which(V(network)$cluster == which.max(clusters(graph = network)$csize))
-)
-
-cc.network 
-
-# Store the degree.
-V(cc.network)$degree <- strength(graph = cc.network)
-
-# Compute the weight shares.
-E(cc.network)$width <- E(cc.network)$weight/max(E(cc.network)$weight)
-
-plot(
-  cc.network, 
-  vertex.color = 'lightblue',
-  # Scale node size by degree.
-  vertex.size = 10*V(cc.network)$degree,
-  vertex.label.color = 'black', 
-  vertex.label.cex = 0.6, 
-  vertex.label.dist = 1.6,
-  edge.color = 'gray', 
-  # Set edge width proportional to the weight relative value.
-  edge.width = 3*E(cc.network)$width ,
-  main = 'Componente m?s grande', 
-  sub = glue('Peso l?mite: {threshold}'), 
-  alpha = 50
-)
-
 #-------------------------------------------------------------
 # INTERACTIVE NETWORK
 
 # Use network D3
 # Treshold
-threshold <- 350
+threshold <- 100
 
 network <-  bi.gram.count %>%
   filter(weight > threshold) %>%
@@ -684,7 +666,7 @@ skip.gram.count %>% head()
 
 # visualization
 # Treshold
-threshold <- 350
+threshold <- 150
 
 network <-  skip.gram.count %>%
   filter(weight > threshold) %>%
@@ -795,6 +777,15 @@ network.clusters <-  V(cc.network)$membership %>%
 
 #save(network.clusters, file = "datamarkdownv2\\network.clusters.RData")
 
+# Display clusters
+tb<-table(data.frame(network.clusters))
+
+tb <- network.clusters %>% data_frame(words = .) %>% 
+  group_by(words) %>% 
+  summarise(freq = n())
+
+wordcloud2(tb)
+
 
 #-------------------------------------------------------------
 # CORRELATION ANALYSIS (PHI COEFFICIENT)
@@ -805,7 +796,7 @@ cor.words <- words.df %>%
   pairwise_cor(item = word, feature = ID)
 
 
-topic.words <- c('embarazada', 'aborto', 'bebe')
+topic.words <- c('salud', '', '')
 
 
 # Set correlation threshold. 
@@ -945,6 +936,8 @@ fviz_cluster(kfit, data = as.data.frame(tiesne$Y), stand = FALSE,
 # Extract clusters
 
 gc()
-
-
+library(tictoc)
+tic()
+language_v <- textcat::textcat(tweets.df$Text[1:1000])
+toc()
 

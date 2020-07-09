@@ -122,20 +122,28 @@ preproctext <- function(x){
 
 tweets.df$Text <- preproctext(tweets.df$Text)
 
+# remove accents 
+replacement.list <- list('á' = 'a', 'é' = 'e', 'í' = 'i', 'ó' = 'o', 'ú' = 'u')
+
+tweets.df %<>% 
+  mutate(Text = chartr(old = names(replacement.list) %>% str_c(collapse = ''), 
+                       new = replacement.list %>% str_c(collapse = ''),
+                       x = Text))
+
 #---------------------------------------------------------------------------------------
 
 # load municipios data
 
-municipios <- read.delim("http://blog.jorgeivanmeza.com/wp-content/uploads/2008/09/municipioscolombiacsv.txt",
-                         sep = ",",fileEncoding = "UTF-8",
-                         col.names = c("idm","nombre_m","idp","nombre_d","latitude","longitude"),
-                         stringsAsFactors = F)
+municipios <- read.delim("C:\\Users\\User\\Desktop\\ciudades.txt",
+                         sep = "\t",fileEncoding = "UTF-8",
+                         col.names = c("city","latitude","longitude"),
+                         stringsAsFactors = F,header = F)
 
 
 municipios$latitude <- lapply(municipios$latitude, as.numeric)
 
 # convert the text to a corpus object using tm
-corpus <-  Corpus(x = VectorSource(x = municipios$nombre_m))
+corpus <-  Corpus(x = VectorSource(x = municipios$city))
 
 # extra cleaning using tm_map
 municipios.text <- corpus %>% 
@@ -145,13 +153,13 @@ municipios.text <- corpus %>%
   #tm_map(removeWords, stopwords('spanish')) %>% 
   tm_map(PlainTextDocument)
 
-municipios %<>% mutate(municipios_m = municipios.text[[1]]$content)
+municipios %<>% mutate(city = municipios.text[[1]]$content)
 
 # remove accent
 municipios %<>% 
-  mutate(municipios_m = chartr(old = names(replacement.list) %>% str_c(collapse = ''), 
+  mutate(city = chartr(old = names(replacement.list) %>% str_c(collapse = ''), 
                        new = replacement.list %>% str_c(collapse = ''),
-                       x = municipios_m))
+                       x = city))
 
 municipios <- municipios[complete.cases(municipios), ]
 
@@ -161,17 +169,17 @@ library(stringi)
 
 
 freq <- c()
-for (i in municipios$municipios_m) {
-  temp <- length(grep(as.character(i), tweets.df$Text))
+for (i in municipios$city) {
+  temp <- length(grep(as.character(paste0('\\<',i,'\\>')), tweets.df$Text))
   freq[i] <- temp
 }
 
 
 freq <- data.frame(freq)
-freq <- data.frame(municipios_m = rownames(freq), freq = freq$freq)
+freq <- data.frame(city = rownames(freq), freq = freq$freq)
 
 
-df <- full_join(municipios, freq, by = "municipios_m")
+df <- full_join(municipios, freq, by = "city")
 
 
 # remove municipios with high frequency
@@ -200,7 +208,7 @@ map <-  leaflet(df) %>% addTiles() %>%
   addCircleMarkers(~longitude, ~as.numeric(latitude),
     radius = ~ sqrt(freq) + 1,
     stroke = FALSE, fillOpacity = 0.5,
-    popup = paste(df$municipios_m,":",df$freq,sep = " ")
+    popup = paste(df$city,":",df$freq,sep = " ")
   ) #%>% 
   #addProviderTiles("Stamen.TonerLite")
 
@@ -215,19 +223,16 @@ m <- leaflet(data = df) %>%
     popup = paste0(
     "<div>",
     "<h3>",
-    df$municipios_m,
+    df$city,
     "</h3>",
     "<strong>Número de menciones</strong>: ",
     as.character(df$freq),
-    "</br>",
-    "<strong>Departamento</strong>: ",
-    df$nombre_d,
     "</br>",
     #"<strong>Meta</strong>: ",
     #data$Meta.1,
     "</div>"
   ),
-  label= df$municipios_m,
+  label= df$city,
   #icon = icon.ion,
   stroke = F, fillOpacity = 0.7,
   )
@@ -235,5 +240,17 @@ m <- leaflet(data = df) %>%
 m
 
 
-save(m, file = "datamarkdown\\map.RData")
+save(m, file = "datamarkdownv2\\map.RData")
+
+
+
+library(stringr)
+
+geotweets <-  tweets.df$Text[Reduce(`|`, lapply(df$city, grepl, x = paste0('\\<',tweets.df$Text,'\\>')))]
+
+
+
+geotweets <- tweets.df[grep(paste(paste0('\\<',df$city,'\\>'), collapse="|"), tweets.df$Text),]
+geotweets <- geotweets[,c(2,9)]
+#save(geotweets, file = "datamarkdownv2\\geotweets.RData")
 

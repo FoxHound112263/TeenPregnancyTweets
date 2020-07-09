@@ -7,7 +7,11 @@ output:
     theme: cosmo
     highlight: tango
     toc: TRUE
-
+    number_sections: true
+    toc_depth: 2
+    toc_float: true
+    includes:
+      after_body: footer.html
 ---
 
 <style type="text/css">
@@ -57,7 +61,7 @@ library(reactable)
 
 ***
 
-## Conjunto de datos
+# **Conjunto de datos**
 
 <div style="text-align: justify"> Los datos fueron recolectados a través de un proceso de **raspado** (webscraping) siguiendo una primera versión de una clasificación taxonómica que tratara de extraer los tweets más relevantes para el análisis.
 
@@ -74,10 +78,10 @@ kable(data.glimpse[,2:3],row.names = F,bootstrap_options = c("striped", "hover",
 
 ***
 
-##  {.tabset .tabset-fade .tabset-pills}
+# **Temporalidad** {.tabset .tabset-fade .tabset-pills}
 
 
-### Gráfico
+## Gráfico
 
 A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un total de **41.879 tweets para casi 13 años**!
 
@@ -85,13 +89,19 @@ A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un to
 load("..\\datamarkdownv2\\plt.RData")
 plt %>% ggplotly()
 ```
+##  Eventos
+
+Noticias relevantes durante los picos...
+```{r}
+
+```
 
 
-### Explorar datos
+## Explorar datos
 
 
 
-```{r, echo=FALSE}
+```{r, echo=FALSE,fig.align='center'}
 load("..\\datamarkdownv2\\tweets.raw.df.RData")
 #datatable(tweets.raw.df[,2:3], class = 'cell-border stripe', rownames = FALSE, filter = 'top',)
 reactable(tweets.raw.df[,2:3],filterable = TRUE,bordered = TRUE,striped = TRUE,
@@ -104,33 +114,31 @@ reactable(tweets.raw.df[,2:3],filterable = TRUE,bordered = TRUE,striped = TRUE,
     searchInputStyle = list(width = "100%")
   ))
 ```
+## Generar gráficos
 
+```{r, echo=FALSE}
 
-
-Como se observa, hay un pico de tweets por minuto interesante el día 20 de marzo de 2015 cerca de las 10pm. Estos son algunos de los tweets que se publicaron alrededor de esa hora:
-
-```{r, echo=F}
-load("..\\datamarkdown\\pico.RData")
-pico
 ```
+
 
 ***
 
-## Frecuencias de palabras
+# **Frecuencias de palabras**
 
 Una forma intuitiva de analizar la totalidad de los datos es a través de la visualización de las **palabras más populares**:
 
 ```{r, echo=FALSE, fig.align='center',fig.width=7,fig.height=7}
-load("..\\datamarkdown\\plt2.RData")
+load("..\\datamarkdownv2\\plt2.RData")
 plt2 %>% ggplotly()
 ```
 
-Adicional al gráfico de barras anterior, las **nubes de palabras** son otro tipo de visualización para este tipo de datos. Sin embargo, en este análisis hay una gran desproporción entre las palabras más populares, evidenciado por la forma del gráfico:
+Adicional al gráfico de barras anterior, las **nubes de palabras** son otro tipo de visualización para este tipo de datos.
 
 
 ```{r, echo=FALSE, fig.align = "center",fig.width=5,fig.height=5}
-load("..\\datamarkdown\\wc.RData")
-wc
+#load("..\\datamarkdown\\wc.RData")
+#wc
+knitr::include_graphics("..\\datamarkdownv2\\wc.png")
 ```
 
 Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean las que poseen más importancia para el significado del texto. Un modo de abordar este problema es con la ponderación de las palabras con un método conocido como **TF-IDF**, que castiga aquellas palabras que aparecen en demacía pero no en proporción a la totalidad de documentos, en este caso Tweets.
@@ -139,7 +147,7 @@ Luego de realizar la ponderación la nueva jerarquía es la siguiente:
 
 
 ```{r, echo=FALSE,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\plt3.RData")
+load("..\\datamarkdownv2\\plt3.RData")
 plt3 %>% ggplotly()
 ```
 
@@ -148,47 +156,140 @@ Como se observa la palabra "mes" aparece en primer lugar, en vez de embarazo.
 Se realizó el mismo procedimiento para la nube de palabras, y es evidente a primera vista que las palabras se visualizan de mejor manera:
 
 ```{r, echo=FALSE, fig.align = "center",fig.width=7,fig.height=7}
-load("..\\datamarkdown\\wc2.RData")
-wc2
+#load("..\\datamarkdown\\wc2.RData")
+#wc2
+knitr::include_graphics("..\\datamarkdownv2\\wc2.png")
+
 ```
 
 Por último lugar de esta sección, visualizamos la aparición a lo largo del tiempo de la palabra 'embarazo' en todos los tweets:
 
-```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\animation.RData")
-animation
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=7,fig.height=7,fig.align='center'}
+#load("..\\datamarkdownv2\\animation.RData")
+#animation
+
+#load("..\\datamarkdownv2\\animation2.RData")
+#
+
+
+knitr::include_graphics("..\\datamarkdownv2\\animationc.gif")
+
+```
+
+
+
+#  **Hashtags** {.tabset .tabset-fade .tabset-pills}
+
+## Grupos
+
+Los hashtags son una forma de expresar blah blah blah y por eso son importantes
+
+```{r, echo=FALSE,fig.align='center'}
+knitr::include_graphics("..\\datamarkdownv2\\ht.png")
+```
+
+## Explorar datos
+
+```{r, echo=FALSE, fig.align='center'}
+reactable(tweets.raw.df[,2:3],filterable = TRUE,bordered = TRUE,striped = TRUE,
+            theme = reactableTheme(
+    borderColor = "#dfe2e5",
+    stripedColor = "#f6f8fa",
+    highlightColor = "#f0f5f9",
+    cellPadding = "8px 12px",
+    style = list(fontFamily = "-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif"),
+    searchInputStyle = list(width = "100%")
+  ))
+```
+
+# **Usuarios** {.tabset .tabset-fade .tabset-pills}
+
+## Usuarios más populares
+
+Los usuarios más populares blah blah blah..
+
+```{r, echo=FALSE,fig.align='center',warning=FALSE,message=FALSE,fig.width=7,fig.height=7}
+#load("..\\datamarkdownv2\\likes.RData")
+#load("..\\datamarkdownv2\\retweetsplt.RData")
+#library(grid)
+#library(gridExtra)
+#grid.arrange(likesplt, retweetsplt, ncol = 2)
+
+load("..\\datamarkdownv2\\popular.RData")
+popular
+
+```
+
+## Explorar datos
+
+```{r, echo=FALSE}
+reactable(tweets.raw.df[,2:4],filterable = TRUE,bordered = TRUE,striped = TRUE,
+            theme = reactableTheme(
+    borderColor = "#dfe2e5",
+    stripedColor = "#f6f8fa",
+    highlightColor = "#f0f5f9",
+    cellPadding = "8px 12px",
+    style = list(fontFamily = "-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif"),
+    searchInputStyle = list(width = "100%")
+  ))
+```
+
+## Similitud entre usuarios
+
+```{r, echo=FALSE}
+knitr::include_app('https://yihui.shinyapps.io/miniUI/', height = '600px')
 ```
 
 
 ***
 
-## Geografía
+#  **Geografía** {.tabset .tabset-fade .tabset-pills}
+
+## Mapa
 
 El conjunto de datos no posee la referencia geográfica de cada tweet, pero lo que se puede hacer es extraer las menciones de los diferentes municipios de Colombia, como lo muestra el siguiente mapa:
 
-```{r, echo=FALSE,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\map.RData")
+```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
+load("..\\datamarkdownv2\\map.RData")
 m
+```
+
+## Explorar datos
+
+```{r, echo=FALSE,fig.align='center'}
+load("..\\datamarkdownv2\\geotweets.RData")
+reactable(geotweets,filterable = TRUE,bordered = TRUE,striped = TRUE,
+            theme = reactableTheme(
+    borderColor = "#dfe2e5",
+    stripedColor = "#f6f8fa",
+    highlightColor = "#f0f5f9",
+    cellPadding = "8px 12px",
+    style = list(fontFamily = "-apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif"),
+    searchInputStyle = list(width = "100%")
+  ))
 ```
 
 ***
 
-## Análisis de redes
+# **Análisis de redes** {.tabset .tabset-fade .tabset-pills}
 
 El análisis de redes es un conjunto de técnicas integradas que permiten extraer las relaciones entre diferentes actores y **analizar las estructuras sociales** que emergen de sus interacciones.
 
 En primer lugar se deben extraer las palabras que más se utilizan de forma conjunta, o más conocidas como n-gramas. Para esta sección se construyeron las redes a partir del procedimiento más común, tomando los bi-gramas:
 
 
-```{r, echo=F,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\bigrams.RData")
+```{r, echo=F,fig.width=7,fig.height=7,fig.align='center'}
+load("..\\datamarkdownv2\\bigrams.RData")
 bigrams
 ```
 
+## Red básica
+
 A cada par de palabras se le asignó un peso, que se verá reflejado en la red por la cercanía con otros conjuntos de palabras, como en el siguiente gráfico:
 
-```{r, echo=F,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\plt4.RData")
+```{r, echo=F,fig.width=7,fig.height=7,fig.align='center'}
+load("..\\datamarkdownv2\\plt4.RData")
 threshold <- 80
 
 plot(
@@ -205,10 +306,12 @@ plot(
 ```
 
 
+## Red interactiva
+
 Pero este gráfico puede visualizar mucha más información, y para ello se construyó una **versión interactiva**:
 
-```{r, echo=FALSE,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\plt5.RData")
+```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
+load("..\\datamarkdownv2\\plt5.RData")
 
 forceNetwork(
   Links = plt5$links, 
@@ -228,10 +331,12 @@ forceNetwork(
 )
 ```
 
+## Skip-gram
+
 Una variación de esta red se construyó utilziando **'skip-grams'** en lugar de bi-gramas. Esta aproximación intenta solventar el problema en donde las palabras que están una al lado de otra tal vez no nos cuentan la historia completa, de modo que los ski-grams intentan ubicar las combinaciones de palabras que sí le dan significado al texto:
 
-```{r, echo=FALSE,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\plt6.RData")
+```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
+load("..\\datamarkdownv2\\plt6.RData")
 
 forceNetwork(
   Links = plt6$links, 
@@ -257,8 +362,8 @@ forceNetwork(
 
 Este procedimiento consiste en identificar grupos de nodos de una red que interactúan entre sí, evidenciando grupos de palabras que tocan temas en común:
 
-```{r, echo=FALSE,fig.width=7,fig.height=7}
-load("..\\datamarkdown\\plt7.RData")
+```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
+load("..\\datamarkdownv2\\plt7.RData")
 
 forceNetwork(
   Links = plt7$links, 
@@ -281,19 +386,17 @@ Como se observa con la codificación de colores, hay grupos de palabras que pert
 
 Estas son las palabras que aparecen en cada grupo o cluster:
 
-```{r, echo=FALSE}
-load("..\\datamarkdown\\network.clusters.RData")
-
-network.clusters
+```{r, echo=FALSE,fig.align='center',fig.width=10,fig.height=10,out.width = "60%"}
+include_graphics('..\\datamarkdownv2\\comclusters.png')
 ```
 
 ***
 
-## Análisis de correlaciones
+# **Análisis de correlaciones**
 
 Este es un método estadístico que tiene el propósito de evaluar la fuerza de la relación entre varias variables, en este caso, se seleccionan palabras y se detectan aquellas con las que se suelen emparejar:
 
-```{r, echo=FALSE,fig.width=7,fig.height=7}
+```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
 load("..\\datamarkdown\\plt8.RData")
 
 forceNetwork(
@@ -319,7 +422,17 @@ forceNetwork(
 
 ***
 
-## Conclusiones
+# **Aprendizaje de máquina**
+
+Agrupamiento con aprendizaje no supervisado (clustering y topic modelling), detección de bots, análisis de sentimientos...
+
+***
+
+# **Mitos**
+
+Búsqueda a través de la información presente en los textos y los hashtags. Cruces con información geográfica...
+
+# **Conclusiones**
 
 Este reporte condensa un análisis exploratorio sobre los tweets relacionados con embarazo adolescente, el cual resume casi 13 años de texto. Teniendo esto se pueden plantear diferentes hipótesis sobre los datos presentados y por ende realizar mayores análisis.
 
