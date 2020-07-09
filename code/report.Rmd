@@ -104,7 +104,7 @@ load("..\\datamarkdown\\wc.RData")
 wc
 ```
 
-Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean las que poseen más importancia para el significado del texto. Un modo de abordar este problema es con la ponderación de las palabras con un método conocido como **TF-IDF**, que castiga aquellas palabras que aparecen en demacía pero no en proporción a la totalidad de documentos, en este caso Tweets.
+Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean las que poseen más importancia para el significado del texto. Un modo de abordar este problema es con la ponderación de las palabras con un método conocido como **TF-IDF**, que castiga aquellas palabras que aparecen en demacía pero no en proporción a la totalidad de documentos, en este caso Tweets. El método consiste en multiplicar la frecuencia de la palabra por la frecuencia inversa de la palabra con respecto a la totalidad de documentos en la que aparece, de esta manera se encuentran palabras que son relevantes para el tópico.
 
 Luego de realizar la ponderación la nueva jerarquía es la siguiente:
 

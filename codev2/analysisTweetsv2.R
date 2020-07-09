@@ -82,17 +82,24 @@ tweets.raw.df <- data_list %>%
 
 rm(data_list)
 
+
+
+
+# Remove tweets using standart deviation of simil
+tweets.raw.df <- tweets.raw.df[abs(scale(tweets.raw.df$simil)) > 1.5,  ]
+
+# filter by language
+#library("textcat")
+#tweets.raw.df$language <- textcat(tweets.raw.df$Text)
+
+gc()
+#save(tweets.raw.df, file = "datamarkdownv2\\tweets.raw.df.RData")
+
+
 # glimpse of tweets text removing users
 tweets.raw.df %>% 
   filter(!str_detect(string = Text, pattern = '@')) %>% 
   head()
-
-# save object for markdown
-data.glimpse <- tweets.raw.df %>% 
-  filter(!str_detect(string = Text, pattern = '@')) %>% 
-  head()
-
-#save(data.glimpse, file = "datamarkdown\\data.glimpse.RData")
 
 
 # reformat date column using magrittr and lubridate
@@ -110,6 +117,12 @@ tweets.raw.df %>%
   filter(!str_detect(string = Text, pattern = '@')) %>% 
   head()
 
+# save object for markdown
+data.glimpse <- tweets.raw.df[,1:3] %>% 
+  filter(!str_detect(string = Text, pattern = '@')) %>% 
+  head(50)
+
+#save(data.glimpse, file = "datamarkdownv2\\data.glimpse.RData")
 
 #-------------------------------------------------------------
 # TIME ANALYSIS
@@ -121,7 +134,7 @@ tweets.raw.df %<>%
 # time range
 tweets.raw.df %>% pull(Created_At) %>% min()
 
-tweets.raw.df %>% pull(Created_At) %>% max() #13 years!
+tweets.raw.df %>% pull(Created_At) %>% max() #14 years!
 
 # ignore seconds and keep minutes rounding them in new column
 tweets.raw.df %<>% 
@@ -135,35 +148,36 @@ plt <- tweets.raw.df %>%
   geom_line() +
   xlab(label = 'Fecha') +
   ylab(label = NULL) +
-  ggtitle(label = 'N?mero de Tweets por minuto (11 de septiembre de 2007 - 31 de mayo de 2020)')
+  ggtitle(label = 'Número de Tweets por minuto (11 de septiembre de 2007 - 31 de mayo de 2020)')
 
 plt %>% ggplotly()
 
 #save plot
-#save(plt, file = "datamarkdown\\plt.RData")
+#save(plt, file = "datamarkdownv2\\plt.RData")
 
 
 # there is an interesting peak at around 2015-03-20 21:53:00
 # let's see
 
-results.time <- as.POSIXct(x = '2015-03-20 21:53:00')
+results.time <- as.POSIXct(x = c('2015-03-20 21:53:00'))
 
 tweets.raw.df %>% 
   filter(Created_At_Round > results.time ) %>% 
   select(Text) %>% 
   filter(!str_detect(string = Text, pattern = '@')) %>% 
   pull(Text) %>% 
-  tail() 
+  tail(50) 
 
 # save object
 pico <- tweets.raw.df %>% 
-  filter(Created_At_Round > results.time ) %>% 
-  select(Text) %>% 
+  filter(Created_At_Round == results.time ) %>% 
+  select(Created_At_Round,Text) %>% 
   filter(!str_detect(string = Text, pattern = '@')) %>% 
-  pull(Text) %>% 
-  tail() 
+  pull(Created_At_Round,Text) %>% 
+  tail(100) 
 
-save(pico, file = "datamarkdown\\pico.RData")
+
+#save(pico, file = "datamarkdownv2\\pico.RData")
 
 #-------------------------------------------------------------
 # TEXT CLEANING
@@ -198,7 +212,7 @@ tweets.df <- tweets.raw.df %>%
   mutate(Text = Text %>% str_remove_all(pattern = 'https')) %>% 
   mutate(Text = Text %>% str_remove_all(pattern = 'http')) %>% 
   # Remove hashtags.
-  mutate(Text = Text %>% str_remove_all(pattern = '#[a-z,A-Z]*')) %>% 
+  #mutate(Text = Text %>% str_remove_all(pattern = '#[a-z,A-Z]*')) %>% 
   # Remove accounts.
   mutate(Text = Text %>% str_remove_all(pattern = '@[a-z,A-Z]*')) %>% 
   # Remove retweets.
@@ -208,7 +222,7 @@ tweets.df <- tweets.raw.df %>%
 
 
 # remove accents 
-replacement.list <- list('?' = 'a', '?' = 'e', '?' = 'i', '?' = 'o', '?' = 'u')
+replacement.list <- list('á' = 'a', 'é' = 'e', 'í' = 'i', 'ó' = 'o', 'ú' = 'u')
 
 tweets.df %<>% 
   mutate(Text = chartr(old = names(replacement.list) %>% str_c(collapse = ''), 
@@ -312,7 +326,7 @@ word.count %>% head(20)
 # bar plot
 plt2 <- word.count %>% 
   # Set count threshold. 
-  filter(n > 700) %>%
+  filter(n > 2227) %>%
   mutate(word = reorder(word, n)) %>%
   ggplot(aes(x = word, y = n)) +
   theme_light() + 
@@ -324,15 +338,20 @@ plt2 <- word.count %>%
 plt2 %>% ggplotly()
 
 # save plot
-#save(plt2, file = "datamarkdown\\plt2.RData")
+#save(plt2, file = "datamarkdownv2\\plt2.RData")
 
 
 
-# wordcloud
+# wordcloud with R
 wc <- wordcloud2(word.count, color = 'random-dark',size = 1.1)
 wc
 #save wc
-#save(wc, file = "datamarkdown\\wc.RData")
+#save(wc, file = "datamarkdownv2\\wc.RData")
+
+# wordcloud with python
+pasted_text <- paste(unlist(tweets.df$Text), collapse =" ")
+
+
 
 # TFIDF weighting
 
@@ -361,10 +380,10 @@ freq <- as.matrix(freq)
 
 # sorting
 high.freq <- freq[order(-freq),] 
-high.freq <-  high.freq[1:20]
+#high.freq <-  high.freq[1:50]
 
 # dataframe 
-hfp.df <- as.data.frame(high.freq[1:20])
+hfp.df <- as.data.frame(high.freq[1:1000])
 hfp.df$names <- rownames(hfp.df)
 colnames(hfp.df) <- c('n','word')
 
@@ -375,24 +394,24 @@ plt3 <- as.data.frame(hfp.df) %>%
   geom_col(fill = 'black', alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
-  ggtitle(label = 'Palabras m?s frecuentes con ponderaci?n (TF-IDF)')
+  ggtitle(label = 'Palabras más frecuentes con ponderación (TF-IDF)')
 
 plt3 %>% ggplotly()
 
-#save(plt3, file = "datamarkdown\\plt3.RData")
+#save(plt3, file = "datamarkdownv2\\plt3.RData")
 
 
 
 # fixing scale for wordcloud
 hfp.df <-  hfp.df %>% 
-  mutate(n = n / 10)
+  mutate(n = n/100)
 
 hfp.df <- hfp.df[c("word", "n")]
 
 # TF-IDF wordcloud
 wc2 <-  wordcloud2(hfp.df)
 wc2
-#save(wc2, file = "datamarkdown\\wc2.RData")
+#save(wc2, file = "datamarkdownv2\\wc2.RData")
 
 #-------------------------------------------------------------
 # HASHTAGS
@@ -408,20 +427,22 @@ hashtags.unnested.count <- hashtags.unnested.df %>%
   drop_na()
 
 # hashtag wordcloud
-wordcloud2(hashtags.unnested.count)
+wc3 <- wordcloud2(hashtags.unnested.count)
+
+#save(wc3, file = "datamarkdownv2\\wc3.RData")
 
 # custom hashtag evolution
-plt <- hashtags.unnested.df %>% 
-  filter(hashtag %in% c('embarazo', 'aborto')) %>% 
+plt_h <- hashtags.unnested.df %>% 
+  filter(hashtag %in% c('sexual', 'infeccion')) %>% 
   count(Created_At_Round, hashtag) %>% 
   ggplot(mapping = aes(x  = Created_At_Round, y = n, color = hashtag)) +
   theme_light() + 
   xlab(label = 'Date') +
   ggtitle(label = 'Top Hastags Counts') +
   geom_line() + 
-  scale_color_manual(values = c('embarazo' = 'green3', 'aborto' = 'red'))
+  scale_color_manual(values = c('sexual' = 'green3', 'infeccion' = 'red'))
 
-plt %>% ggplotly()
+plt_h %>% ggplotly()
 
 
 #-------------------------------------------------------------
@@ -461,7 +482,7 @@ bi.gram.count <- bi.gram.words %>%
 
 # glimpse
 bigrams <-  bi.gram.count %>% head()
-save(bigrams, file = "datamarkdown\\bigrams.RData")
+#save(bigrams, file = "datamarkdownv2\\bigrams.RData")
 
 # weight distribution
 bi.gram.count %>% 
@@ -487,7 +508,7 @@ bi.gram.count %>%
 
 # 
 
-threshold <- 200
+threshold <- 400
 
 # scale by a global factor
 ScaleWeight <- function(x, lambda) {
@@ -501,7 +522,7 @@ network <-  bi.gram.count %>%
 
 plt4 <- network
 is.weighted(network)
-#save(plt4, file = "datamarkdown\\plt4.RData")
+#save(plt4, file = "datamarkdownv2\\plt4.RData")
 
 # visualization
 plot(
@@ -512,7 +533,7 @@ plot(
   vertex.label.dist = 1,
   edge.color = 'gray', 
   main = 'Red de conteo de bigramas', 
-  sub = glue('Peso l?mite: {threshold}'), 
+  sub = glue('Peso límite: {threshold}'), 
   alpha = 50
 )
 
@@ -586,7 +607,7 @@ plot(
 
 # Use network D3
 # Treshold
-threshold <- 80
+threshold <- 350
 
 network <-  bi.gram.count %>%
   filter(weight > threshold) %>%
@@ -607,7 +628,7 @@ network.D3$nodes %<>% mutate(Group = 1)
 network.D3$links$Width <- 10*E(network)$width
 
 plt5 <- network.D3
-#save(plt5, file = "datamarkdown\\plt5.RData")
+#save(plt5, file = "datamarkdownv2\\plt5.RData")
 
 forceNetwork(
   Links = network.D3$links, 
@@ -663,7 +684,7 @@ skip.gram.count %>% head()
 
 # visualization
 # Treshold
-threshold <- 80
+threshold <- 350
 
 network <-  skip.gram.count %>%
   filter(weight > threshold) %>%
@@ -692,7 +713,7 @@ network.D3$nodes %<>% mutate(Group = 1)
 network.D3$links$Width <- 10*E(cc.network)$width
 
 plt6 <- network.D3
-#save(plt6, file = "datamarkdown\\plt6.RData")
+#save(plt6, file = "datamarkdownv2\\plt6.RData")
 
 forceNetwork(
   Links = network.D3$links, 
@@ -732,7 +753,7 @@ V(cc.network)$membership <- membership(comm.det.obj)
 network.D3$nodes$Group <- V(cc.network)$membership
 
 plt7 <- network.D3
-#save(plt7, file = "datamarkdown\\plt7.RData")
+#save(plt7, file = "datamarkdownv2\\plt7.RData")
 
 forceNetwork(
   Links = network.D3$links, 
@@ -772,7 +793,7 @@ network.clusters <-  V(cc.network)$membership %>%
     
   }) 
 
-#save(network.clusters, file = "datamarkdown\\network.clusters.RData")
+#save(network.clusters, file = "datamarkdownv2\\network.clusters.RData")
 
 
 #-------------------------------------------------------------
@@ -788,7 +809,7 @@ topic.words <- c('embarazada', 'aborto', 'bebe')
 
 
 # Set correlation threshold. 
-threshold = 0.1
+threshold = 0.5
 
 network <- cor.words %>%
   rename(weight = correlation) %>% 
