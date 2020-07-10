@@ -1,0 +1,13 @@
+name: AppUNFPA
+title: AppUNFPA
+username:
+account: camilo112263
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2555537
+bundleId: 3374937
+url: https://camilo112263.shinyapps.io/AppUNFPA/
+when: 1594360824.84464
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: analysisTweetsv2.R|animationv2.R|footer.html|mapv2.R|reportv2.html|reportv2.Rmd|usernames.R

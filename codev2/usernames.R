@@ -52,3 +52,13 @@ popular <- subplot(likesplt, retweetsplt,margin = 0.1,titleX = T,titleY = T)
 popular 
 
 save(popular, file = "datamarkdownv2\\popular.RData")
+
+
+
+# Similarity between users
+
+
+
+library(rtweet)
+series <- ts_plot(tweets.df, by="days")
+series

@@ -114,10 +114,11 @@ reactable(tweets.raw.df[,2:3],filterable = TRUE,bordered = TRUE,striped = TRUE,
     searchInputStyle = list(width = "100%")
   ))
 ```
-## Generar gráficos
 
-```{r, echo=FALSE}
+## App interactiva
 
+```{r, echo = FALSE}
+knitr::include_app('https://camilo112263.shinyapps.io/AppUNFPA/', height = '700px')
 ```
 
 

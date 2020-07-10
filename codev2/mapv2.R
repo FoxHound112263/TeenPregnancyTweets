@@ -246,7 +246,7 @@ save(m, file = "datamarkdownv2\\map.RData")
 
 library(stringr)
 
-geotweets <-  tweets.df$Text[Reduce(`|`, lapply(df$city, grepl, x = paste0('\\<',tweets.df$Text,'\\>')))]
+#geotweets <-  tweets.df$Text[Reduce(`|`, lapply(df$city, grepl, x = paste0('\\<',tweets.df$Text,'\\>')))]
 
 
 

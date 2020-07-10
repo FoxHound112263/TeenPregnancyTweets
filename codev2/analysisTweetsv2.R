@@ -80,13 +80,16 @@ tweets.raw.df <- data_list %>%
   ) %>% 
   as_tibble()
 
+data <- tweets.raw.df
+
 rm(data_list)
+rm(tweets.raw.df)
 gc()
 
 
 
 # Remove tweets using standart deviation of simil
-tweets.raw.df <- tweets.raw.df[abs(scale(tweets.raw.df$simil)) > 1.5,  ]
+tweets.raw.df <- data[abs(scale(data$simil)) > 1,  ]
 
 # filter by language
 #library("textcat")
@@ -267,7 +270,9 @@ preproctext <- function(x){
 
 tweets.df$Text <- preproctext(tweets.df$Text)
 
+tweets.df$original <- tweets.raw.df$Text
 
+#save(tweets.df, file = "C:\\Users\\User\\Desktop\\tweets.df.RData")
 
 # extract hashtags function
 GetHashtags <- function(tweet) {
