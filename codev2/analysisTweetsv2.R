@@ -73,6 +73,7 @@ tweets.raw.df <- data_list %>%
     retweets = .x$retweets,
     screen_name = .x$screen_name,
     username = .x$username,
+    #hashtags = .x$hashtags,
     simil = .x$similarity,
     
     stringsAsFactors = FALSE
