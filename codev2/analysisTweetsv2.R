@@ -93,7 +93,7 @@ tweets.raw.df <- data[abs(scale(data$simil)) > 1,  ]
 
 # filter by language
 #library("textcat")
-#tweets.raw.df$language <- textcat(tweets.raw.df$Text)
+#tweetsS.raw.df$language <- textcat(tweets.raw.df$Text)
 
 gc()
 #save(tweets.raw.df, file = "datamarkdownv2\\tweets.raw.df.RData")
@@ -151,7 +151,7 @@ plt <- tweets.raw.df %>%
   geom_line() +
   xlab(label = 'Fecha') +
   ylab(label = NULL) +
-  ggtitle(label = 'Número de Tweets por minuto (11 de septiembre de 2007 - 31 de mayo de 2020)')
+  ggtitle(label = 'Número de Tweets por minuto (31 de julio de 2006 - 25 de junio de 2020)')
 
 plt %>% ggplotly()
 
@@ -340,7 +340,7 @@ plt2 <- word.count %>%
   geom_col(fill = 'black', alpha = 0.8) +
   xlab(NULL) +
   coord_flip() +
-  ggtitle(label = 'Palabras m?s frecuentes')
+  ggtitle(label = 'Palabras más frecuentes')
 
 plt2 %>% ggplotly()
 
@@ -801,11 +801,11 @@ cor.words <- words.df %>%
   pairwise_cor(item = word, feature = ID)
 
 
-topic.words <- c('salud', '', '')
+topic.words <- c('vph', 'mujer', 'vih')
 
 
 # Set correlation threshold. 
-threshold = 0.5
+threshold = 0.1
 
 network <- cor.words %>%
   rename(weight = correlation) %>% 
@@ -837,7 +837,7 @@ network.D3$nodes$Group <- network.D3$nodes$name %>%
 
 network.D3$links %<>% mutate(Width = 10*E(network)$width)
 plt8 <- network.D3
-#save(plt8, file = "datamarkdown\\plt8.RData")
+save(plt8, file = "datamarkdownv2\\plt8.RData")
 
 forceNetwork(
   Links = network.D3$links, 
@@ -847,7 +847,7 @@ forceNetwork(
   NodeID = 'name',
   Group = 'Group', 
   # We color the nodes using JavaScript code.
-  colourScale = JS('d3.scaleOrdinal().domain([0,1,2]).range(["gray", "blue", "red", "black"])'), 
+  colourScale = JS('d3.scaleOrdinal().domain([0,1,2]).range(["gray", "blue", "red", "green"])'), 
   opacity = 0.8,
   Value = 'Width',
   Nodesize = 'Degree', 
@@ -879,12 +879,12 @@ emocion.df <- get_nrc_sentiment(char_v = tweets.vector, language = "spanish")
 # CLUSTER ANALYSIS
 set.seed(10)
 library(quanteda)
-corp <- corpus(tweets.df$Text)
+corp <- corpus(tweets.df$Text,unique_docnames = F)
 corpsent <- corpus_reshape(corp, to = "sentences")
 texts(corpsent)
 corpus.cluster <- texts(corpus_sample(corpsent, 1000))
 
-tdm2 <- dfm(corpus.cluster)
+tdm2 <- dfm(corp)
 tdm2 <- quanteda::dfm_tfidf(tdm2)
 
 

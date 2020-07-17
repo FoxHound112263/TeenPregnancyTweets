@@ -63,9 +63,9 @@ library(reactable)
 
 # **Conjunto de datos**
 
-<div style="text-align: justify"> Los datos fueron recolectados a través de un proceso de **raspado** (webscraping) siguiendo una primera versión de una clasificación taxonómica que tratara de extraer los tweets más relevantes para el análisis.
+<div style="text-align: justify"> Los datos fueron recolectados a través de un proceso de [**raspado**](https://es.wikipedia.org/wiki/Web_scraping) (webscraping) siguiendo una primera versión de una clasificación taxonómica que tratara de extraer los tweets más relevantes para el análisis.
 
-Las variables que se tuvieron en cuenta fueron: el identificador único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text); de modo que el nombre de las cuentas fueron descartados: </div>
+Las variables que se tuvieron en cuenta fueron: el identificador único del tweet (id), el momento en que fue creado (Created_At) y su contenido (Text): </div>
 
 
 ```{r, echo=FALSE}
@@ -83,19 +83,12 @@ kable(data.glimpse[,2:3],row.names = F,bootstrap_options = c("striped", "hover",
 
 ## Gráfico
 
-A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un total de **41.879 tweets para casi 13 años**!
+A continuación se muestra el intervalo de tiempo del conjunto de datos, ¡un total de **55.907 tweets para casi 14 años**!
 
 ```{r, echo=FALSE, fig.align="center", fig.width=9,fig.height=9}
 load("..\\datamarkdownv2\\plt.RData")
 plt %>% ggplotly()
 ```
-##  Eventos
-
-Noticias relevantes durante los picos...
-```{r}
-
-```
-
 
 ## Explorar datos
 
@@ -122,6 +115,8 @@ knitr::include_app('https://camilo112263.shinyapps.io/AppUNFPA/', height = '700p
 ```
 
 
+## Eventos
+
 ***
 
 # **Frecuencias de palabras**
@@ -131,20 +126,23 @@ Una forma intuitiva de analizar la totalidad de los datos es a través de la vis
 ```{r, echo=FALSE, fig.align='center',fig.width=7,fig.height=7}
 load("..\\datamarkdownv2\\plt2.RData")
 plt2 %>% ggplotly()
+
+
+
 ```
 
-Adicional al gráfico de barras anterior, las **nubes de palabras** son otro tipo de visualización para este tipo de datos.
+Adicional al gráfico de barras anterior, las [**nubes de palabras**](https://es.wikipedia.org/wiki/Nube_de_palabras) son otro tipo de visualización para este tipo de datos.
 
 
-```{r, echo=FALSE, fig.align = "center",fig.width=5,fig.height=5}
+```{r, echo=FALSE, fig.align = "center",fig.width=8,fig.height=8}
 #load("..\\datamarkdown\\wc.RData")
 #wc
 knitr::include_graphics("..\\datamarkdownv2\\wc.png")
 ```
 
-Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean las que poseen más importancia para el significado del texto. Un modo de abordar este problema es con la ponderación de las palabras con un método conocido como **TF-IDF**, que castiga aquellas palabras que aparecen en demacía pero no en proporción a la totalidad de documentos, en este caso Tweets.
+<div style="text-align: justify"> Este caso es un ejemplo de que tal vez las palabras que más aparecen no sean las que poseen más importancia para el significado del texto. Un modo de abordar este problema es con la ponderación de las palabras con un método conocido como [**TF-IDF**](https://es.wikipedia.org/wiki/Tf-idf), que castiga aquellas palabras que aparecen en demacía pero no en proporción a la totalidad de documentos, en este caso Tweets. 
 
-Luego de realizar la ponderación la nueva jerarquía es la siguiente:
+Luego de realizar la ponderación la nueva jerarquía es la siguiente: </div>
 
 
 ```{r, echo=FALSE,fig.width=7,fig.height=7}
@@ -152,30 +150,22 @@ load("..\\datamarkdownv2\\plt3.RData")
 plt3 %>% ggplotly()
 ```
 
-Como se observa la palabra "mes" aparece en primer lugar, en vez de embarazo.
+Como se observa la palabra **condon** aparece ahora en primer lugar.
 
 Se realizó el mismo procedimiento para la nube de palabras, y es evidente a primera vista que las palabras se visualizan de mejor manera:
 
-```{r, echo=FALSE, fig.align = "center",fig.width=7,fig.height=7}
+```{r, echo=FALSE, fig.align = "center",fig.width=8,fig.height=8}
 #load("..\\datamarkdown\\wc2.RData")
 #wc2
 knitr::include_graphics("..\\datamarkdownv2\\wc2.png")
 
 ```
 
-Por último lugar de esta sección, visualizamos la aparición a lo largo del tiempo de la palabra 'embarazo' en todos los tweets:
+Por último lugar de esta sección, visualizamos una animación para 2 de las palabras que más aparecen en los tweets:
 
 
 ```{r, echo=FALSE, message=FALSE, warning=FALSE,fig.width=7,fig.height=7,fig.align='center'}
-#load("..\\datamarkdownv2\\animation.RData")
-#animation
-
-#load("..\\datamarkdownv2\\animation2.RData")
-#
-
-
 knitr::include_graphics("..\\datamarkdownv2\\animationc.gif")
-
 ```
 
 
@@ -184,7 +174,7 @@ knitr::include_graphics("..\\datamarkdownv2\\animationc.gif")
 
 ## Grupos
 
-Los hashtags son una forma de expresar blah blah blah y por eso son importantes
+Los [hashtags](https://es.wikipedia.org/wiki/Hashtag) son una forma en que las personas puedes resaltar palabras clave para hacer la búsqueda de tweets más fácil,  además de volver ciertos temas tendencias.
 
 ```{r, echo=FALSE,fig.align='center'}
 knitr::include_graphics("..\\datamarkdownv2\\ht.png")
@@ -208,18 +198,11 @@ reactable(tweets.raw.df[,2:3],filterable = TRUE,bordered = TRUE,striped = TRUE,
 
 ## Usuarios más populares
 
-Los usuarios más populares blah blah blah..
+Identificar aquellas cuentas que generan más conversación puede ayudar a la detección de mitos:
 
 ```{r, echo=FALSE,fig.align='center',warning=FALSE,message=FALSE,fig.width=7,fig.height=7}
-#load("..\\datamarkdownv2\\likes.RData")
-#load("..\\datamarkdownv2\\retweetsplt.RData")
-#library(grid)
-#library(gridExtra)
-#grid.arrange(likesplt, retweetsplt, ncol = 2)
-
 load("..\\datamarkdownv2\\popular.RData")
 popular
-
 ```
 
 ## Explorar datos
@@ -239,7 +222,7 @@ reactable(tweets.raw.df[,2:4],filterable = TRUE,bordered = TRUE,striped = TRUE,
 ## Similitud entre usuarios
 
 ```{r, echo=FALSE}
-knitr::include_app('https://yihui.shinyapps.io/miniUI/', height = '600px')
+
 ```
 
 
@@ -249,7 +232,7 @@ knitr::include_app('https://yihui.shinyapps.io/miniUI/', height = '600px')
 
 ## Mapa
 
-El conjunto de datos no posee la referencia geográfica de cada tweet, pero lo que se puede hacer es extraer las menciones de los diferentes municipios de Colombia, como lo muestra el siguiente mapa:
+<div style="text-align: justify"> El conjunto de datos no posee la referencia geográfica de cada tweet, pero lo que se puede hacer es extraer las menciones de las ciudades principales de Colombia, como lo muestra el siguiente mapa: </div>
 
 ```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
 load("..\\datamarkdownv2\\map.RData")
@@ -271,18 +254,26 @@ reactable(geotweets,filterable = TRUE,bordered = TRUE,striped = TRUE,
   ))
 ```
 
+
+## App interactiva
+
+```{r, echo=FALSE}
+knitr::include_app('https://camilo112263.shinyapps.io/AppUNFPA/', height = '700px')
+```
+
+
 ***
 
 # **Análisis de redes** {.tabset .tabset-fade .tabset-pills}
 
-El análisis de redes es un conjunto de técnicas integradas que permiten extraer las relaciones entre diferentes actores y **analizar las estructuras sociales** que emergen de sus interacciones.
+<div style="text-align: justify"> El [análisis de redes](https://es.wikipedia.org/wiki/Ciencia_de_redes) es un conjunto de técnicas integradas que permiten extraer las relaciones entre diferentes actores y **analizar las estructuras sociales** que emergen de sus interacciones.
 
-En primer lugar se deben extraer las palabras que más se utilizan de forma conjunta, o más conocidas como n-gramas. Para esta sección se construyeron las redes a partir del procedimiento más común, tomando los bi-gramas:
+En primer lugar se deben extraer las palabras que más se utilizan de forma conjunta, o más conocidas como n-gramas. Para esta sección se construyeron las redes a partir del procedimiento más común, tomando los bi-gramas: </div>
 
 
 ```{r, echo=F,fig.width=7,fig.height=7,fig.align='center'}
 load("..\\datamarkdownv2\\bigrams.RData")
-bigrams
+kable(bigrams)
 ```
 
 ## Red básica
@@ -334,7 +325,7 @@ forceNetwork(
 
 ## Skip-gram
 
-Una variación de esta red se construyó utilziando **'skip-grams'** en lugar de bi-gramas. Esta aproximación intenta solventar el problema en donde las palabras que están una al lado de otra tal vez no nos cuentan la historia completa, de modo que los ski-grams intentan ubicar las combinaciones de palabras que sí le dan significado al texto:
+Una variación de esta red se construyó utilziando **'skip-grams'** en lugar de [bi-gramas](https://es.wikipedia.org/wiki/N-grama). Esta aproximación intenta solventar el problema en donde las palabras que están una al lado de otra tal vez no nos cuentan la historia completa, de modo que los ski-grams intentan ubicar las combinaciones de palabras que sí le dan significado al texto:
 
 ```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
 load("..\\datamarkdownv2\\plt6.RData")
@@ -361,7 +352,7 @@ forceNetwork(
 
 ## Detección de comunidades
 
-Este procedimiento consiste en identificar grupos de nodos de una red que interactúan entre sí, evidenciando grupos de palabras que tocan temas en común:
+Este procedimiento consiste en identificar [grupos de nodos de una red](https://es.wikipedia.org/wiki/Estructura_de_comunidades) que interactúan entre sí, evidenciando grupos de palabras que tocan temas en común:
 
 ```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
 load("..\\datamarkdownv2\\plt7.RData")
@@ -383,7 +374,8 @@ forceNetwork(
   opacityNoHover = 1
 )
 ```
-Como se observa con la codificación de colores, hay grupos de palabras que pertenecen a un mismo grupo de tweets, y que en consecuencia, pertenecen a diferentes personas que hablan sobre un mismo tema.
+
+<div style="text-align: justify"> Como se observa con la codificación de colores, hay grupos de palabras que pertenecen a un mismo grupo de tweets, y que en consecuencia, pertenecen a diferentes personas que hablan sobre un mismo tema. </div>
 
 Estas son las palabras que aparecen en cada grupo o cluster:
 
@@ -395,10 +387,10 @@ include_graphics('..\\datamarkdownv2\\comclusters.png')
 
 # **Análisis de correlaciones**
 
-Este es un método estadístico que tiene el propósito de evaluar la fuerza de la relación entre varias variables, en este caso, se seleccionan palabras y se detectan aquellas con las que se suelen emparejar:
+<div style="text-align: justify"> Este es un [método estadístico](https://es.wikipedia.org/wiki/Correlaci%C3%B3n) que tiene el propósito de evaluar la fuerza de la relación entre varias variables, en este caso, se seleccionan palabras y se detectan aquellas con las que se suelen emparejar: </div>
 
 ```{r, echo=FALSE,fig.width=7,fig.height=7,fig.align='center'}
-load("..\\datamarkdown\\plt8.RData")
+load("..\\datamarkdownv2\\plt8.RData")
 
 forceNetwork(
   Links = plt8$links, 
@@ -408,7 +400,7 @@ forceNetwork(
   NodeID = 'name',
   Group = 'Group', 
   # We color the nodes using JavaScript code.
-  colourScale = JS('d3.scaleOrdinal().domain([0,1,2]).range(["gray", "blue", "red", "black"])'), 
+  colourScale = JS('d3.scaleOrdinal().domain([0,1,2]).range(["gray", "blue", "red", "green"])'), 
   opacity = 0.8,
   Value = 'Width',
   Nodesize = 'Degree', 
@@ -435,6 +427,6 @@ Búsqueda a través de la información presente en los textos y los hashtags. Cr
 
 # **Conclusiones**
 
-Este reporte condensa un análisis exploratorio sobre los tweets relacionados con embarazo adolescente, el cual resume casi 13 años de texto. Teniendo esto se pueden plantear diferentes hipótesis sobre los datos presentados y por ende realizar mayores análisis.
+<div style="text-align: justify"> Este reporte condensa un análisis exploratorio sobre los tweets relacionados con embarazo adolescente, el cual resume casi 13 años de texto. Teniendo esto se pueden plantear diferentes hipótesis sobre los datos presentados y por ende realizar mayores análisis. </div>
 
  <a href="#top">Volver al inicio</a>
